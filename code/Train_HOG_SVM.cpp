@@ -1,13 +1,13 @@
 /*
-ÀÌ ÄÚµå´Â Â÷·®°ú ºñÂ÷·® ÀÌ¹ÌÁö µ¥ÀÌÅÍ¸¦ ºÒ·¯¿É´Ï´Ù, 
-µ¥ÀÌÅÍ¸¦ Áõ°­(ÁÂ¿ì ¹İÀü)ÇÑ µÚ 
-µ¥ÀÌÅÍ¸¦ ¹«ÀÛÀ§·Î ¼¯Àº ÈÄ, HOG Æ¯Â¡À» ÃßÃâÇÕ´Ï´Ù. 
-HOG Æ¯Â¡ ÃßÃâÇÏ´Â ¹æ¹ıÀº ÃÑ µÎ °¡Áö°¡ ÀÖ½À´Ï´Ù (°ãÄ¡°Ô, °ãÄ¡Áö ¾Ê°Ô).
+ì´ ì½”ë“œëŠ” ì°¨ëŸ‰ê³¼ ë¹„ì°¨ëŸ‰ ì´ë¯¸ì§€ ë°ì´í„°ë¥¼ ë¶ˆëŸ¬ì˜µë‹ˆë‹¤, 
+ë°ì´í„°ë¥¼ ì¦ê°•(ì¢Œìš° ë°˜ì „)í•œ ë’¤ 
+ë°ì´í„°ë¥¼ ë¬´ì‘ìœ„ë¡œ ì„ì€ í›„, HOG íŠ¹ì§•ì„ ì¶”ì¶œí•©ë‹ˆë‹¤. 
+HOG íŠ¹ì§• ì¶”ì¶œí•˜ëŠ” ë°©ë²•ì€ ì´ ë‘ ê°€ì§€ê°€ ìˆìŠµë‹ˆë‹¤ (ê²¹ì¹˜ê²Œ, ê²¹ì¹˜ì§€ ì•Šê²Œ).
 
-SVMÀÇ ÇÏÀÌÆÛÆÄ¶ó¹ÌÅÍ(C¿Í gamma)¸¦ ±×¸®µå Å½»ö ¹æ½ÄÀ¸·Î ÃÖÀûÈ­ÇÏ¸ç, 
-best_svm_model.xmlÀ¸·Î ÀúÀåÇÕ´Ï´Ù.
+SVMì˜ í•˜ì´í¼íŒŒë¼ë¯¸í„°(Cì™€ gamma)ë¥¼ ê·¸ë¦¬ë“œ íƒìƒ‰ ë°©ì‹ìœ¼ë¡œ ìµœì í™”í•˜ë©°, 
+best_svm_model.xmlìœ¼ë¡œ ì €ì¥í•©ë‹ˆë‹¤.
 
-ÁÖÀÇ) Car, Non-Car ·ÎµåÇÏ±â À§ÇØ, ÇØ´ç ÁÖ¼Ò¿¡ ¸Â°Ô ÀÛ¼ºÇØÁÖ¼Å¾ß ÇÕ´Ï´Ù.
+ì£¼ì˜) Car, Non-Car ë¡œë“œí•˜ê¸° ìœ„í•´, í•´ë‹¹ ì£¼ì†Œì— ë§ê²Œ ì‘ì„±í•´ì£¼ì…”ì•¼ í•©ë‹ˆë‹¤.
 */
 
 #include <iostream>
@@ -17,7 +17,7 @@ best_svm_model.xmlÀ¸·Î ÀúÀåÇÕ´Ï´Ù.
 #include <vector>
 #include <opencv2/opencv.hpp> 
 #include <opencv2/ml.hpp>   // svm
-#include "HOGFeatureExtractor.h" // HOG ÃßÃâ ÄÚµå Æ÷ÇÔ
+#include "HOGFeatureExtractor.h" // HOG ì¶”ì¶œ ì½”ë“œ í¬í•¨
 
 using namespace std;
 using namespace cv;
@@ -25,7 +25,7 @@ using namespace ml;
 namespace fs = filesystem;
 
 
-// Æú´õ¿¡¼­ ÀÌ¹ÌÁö ·Îµå
+// í´ë”ì—ì„œ ì´ë¯¸ì§€ ë¡œë“œ
 void loadImages(const string& folder, vector<Mat>& images, vector<int>& labels, int label) {
     for (const auto& entry : fs::directory_iterator(folder)) {
         Mat img = imread(entry.path().string(), IMREAD_COLOR);
@@ -37,13 +37,13 @@ void loadImages(const string& folder, vector<Mat>& images, vector<int>& labels, 
     }
 }
 
-// µ¥ÀÌÅÍ¸¦ ÈÆ·Ã/Å×½ºÆ®·Î ³ª´©±â
+// ë°ì´í„°ë¥¼ í›ˆë ¨/í…ŒìŠ¤íŠ¸ë¡œ ë‚˜ëˆ„ê¸°
 void splitData(const vector<Mat>& images, const vector<int>& labels,
     vector<Mat>& X_train, vector<int>& y_train,
     vector<Mat>& X_test, vector<int>& y_test, 
     float trainRatio = 0.8) {  
     
-    // ÈÆ·Ã 80%, Å×½ºÆ® 20%
+    // í›ˆë ¨ 80%, í…ŒìŠ¤íŠ¸ 20%
     size_t trainSize = static_cast<size_t>(images.size() * trainRatio);
     for (size_t i = 0; i < images.size(); ++i) {
         if (i < trainSize) {
@@ -57,7 +57,7 @@ void splitData(const vector<Mat>& images, const vector<int>& labels,
     }
 }
 
-// Áõ°­ (ÁÂ¿ì ¹İÀü)
+// ì¦ê°• (ì¢Œìš° ë°˜ì „)
 Mat flipHorizontal(const Mat& inputImage) {
     Mat outputImage;
     flip(inputImage, outputImage, 1);
@@ -65,26 +65,26 @@ Mat flipHorizontal(const Mat& inputImage) {
 }
 void augmentation(vector<Mat>& images, vector<int>& labels, vector<Mat> augImages, vector<int>& augLabels) {
     for (size_t i = 0; i < images.size(); ++i) {
-        // ¿ø·¡
+        // ì›ë˜
         augImages.push_back(images[i]);
         augLabels.push_back(labels[i]);
 
-        // ÁÂ¿ì ¹İÀü
+        // ì¢Œìš° ë°˜ì „
         Mat augmented = flipHorizontal(images[i]);
         augImages.push_back(augmented);
         augLabels.push_back(labels[i]);
     }
 }
 
-// ·£´ıÇÏ°Ô shuffle
+// ëœë¤í•˜ê²Œ shuffle
 void shuffleData(vector<Mat>& X_train, vector<int>& y_train, int seed) {
-    // ÀÎµ¦½º º¤ÅÍ »ı¼º
+    // ì¸ë±ìŠ¤ ë²¡í„° ìƒì„±
     vector<int> indices(X_train.size());
     for (int i = 0; i < indices.size(); ++i) {
-        indices[i] = i;  // ÀÎµ¦½º¸¦ Á÷Á¢ »ı¼º
+        indices[i] = i;  // ì¸ë±ìŠ¤ë¥¼ ì§ì ‘ ìƒì„±
     }
 
-    // ³­¼ö »ı¼º±â ¼³Á¤
+    // ë‚œìˆ˜ ìƒì„±ê¸° ì„¤ì •
     default_random_engine g(seed);
     shuffle(indices.begin(), indices.end(), g);
  
@@ -99,7 +99,7 @@ void shuffleData(vector<Mat>& X_train, vector<int>& y_train, int seed) {
     y_train = move(shuffledLabels);
 }
 
-// HOG Æ¯Â¡ ÃßÃâÀÇ Ã¹ ¹øÂ° ¹æ½Ä Àû¿ë (°ãÄ¡Áö ¾Ê°Ô HOG Æ¯Â¡ ÃßÃâ)
+// HOG íŠ¹ì§• ì¶”ì¶œì˜ ì²« ë²ˆì§¸ ë°©ì‹ ì ìš© (ê²¹ì¹˜ì§€ ì•Šê²Œ HOG íŠ¹ì§• ì¶”ì¶œ)
 void simplePreprocessing(const vector<Mat>& X_train, const vector<int>& y_train,
     const vector<Mat>& X_test, const vector<int>& y_test,
     Mat& pre_X_train, Mat& pre_y_train, Mat& pre_X_test, Mat& pre_y_test) {
@@ -119,7 +119,7 @@ void simplePreprocessing(const vector<Mat>& X_train, const vector<int>& y_train,
     pre_y_test = Mat(y_test).reshape(1, y_test.size());
 }
 
-// HOG Æ¯Â¡ ÃßÃâÀÇ µÎ ¹øÂ° ¹æ½Ä Àû¿ë (°ãÄ¡°Ô HOG Æ¯Â¡ ÃßÃâ)
+// HOG íŠ¹ì§• ì¶”ì¶œì˜ ë‘ ë²ˆì§¸ ë°©ì‹ ì ìš© (ê²¹ì¹˜ê²Œ HOG íŠ¹ì§• ì¶”ì¶œ)
 void preprocessing(const vector<Mat>& X_train, const vector<int>& y_train, 
     const vector<Mat>& X_test, const vector<int>& y_test,
     Mat& pre_X_train, Mat& pre_y_train, Mat& pre_X_test, Mat& pre_y_test) {
@@ -143,8 +143,8 @@ void preprocessing(const vector<Mat>& X_train, const vector<int>& y_train,
 void trainAndTest(const Mat& pre_X_train, const Mat& pre_y_train, 
     const Mat& pre_X_test, const Mat& pre_y_test) {
 
-    // ºñ¼±Çü ÇĞ½À
-    // ÇÏÀÌÆÛÆÄ¶ó¹ÌÅÍ ÈÄº¸ ¼³Á¤
+    // ë¹„ì„ í˜• í•™ìŠµ
+    // í•˜ì´í¼íŒŒë¼ë¯¸í„° í›„ë³´ ì„¤ì •
     vector<double> C_values = { 0.01, 0.1, 1, 10, 100 };    
     vector<double> gamma_values = { 0.001, 0.01, 0.1, 1 };   
     double bestAccuracy = 0.0;
@@ -154,14 +154,14 @@ void trainAndTest(const Mat& pre_X_train, const Mat& pre_y_train,
         for (double gamma : gamma_values) {
             Ptr<SVM> svm = SVM::create();
             svm->setType(SVM::C_SVC);
-            svm->setKernel(SVM::RBF);  // ºñ¼±Çü Ä¿³Î »ç¿ë
+            svm->setKernel(SVM::RBF);  // ë¹„ì„ í˜• ì»¤ë„ ì‚¬ìš©
             svm->setC(C);
             svm->setGamma(gamma);
 
-            // SVM ÈÆ·Ã
+            // SVM í›ˆë ¨
             svm->train(pre_X_train, ROW_SAMPLE, pre_y_train);
 
-            // Å×½ºÆ® µ¥ÀÌÅÍ Æò°¡ 
+            // í…ŒìŠ¤íŠ¸ ë°ì´í„° í‰ê°€ 
             int testCorrect = 0;
             int testFail = 0;
             for (int i = 0; i < pre_X_test.rows; ++i) {
@@ -175,7 +175,7 @@ void trainAndTest(const Mat& pre_X_train, const Mat& pre_y_train,
             }
             float testAccuracy = static_cast<float>(testCorrect) / pre_X_test.rows;
 
-            // ÃÖÀûÀÇ ¸ğµ¨ ÀúÀå
+            // ìµœì ì˜ ëª¨ë¸ ì €ì¥
             if (testAccuracy > bestAccuracy) {
                 bestAccuracy = testAccuracy;
                 bestSVM = svm;
@@ -185,7 +185,7 @@ void trainAndTest(const Mat& pre_X_train, const Mat& pre_y_train,
         }
     }
 
-    // ÃÖÀûÀÇ ¸ğµ¨·Î ÃÖÁ¾ Å×½ºÆ® ¹× ÀúÀå
+    // ìµœì ì˜ ëª¨ë¸ë¡œ ìµœì¢… í…ŒìŠ¤íŠ¸ ë° ì €ì¥
     cout << "Best Test Accuracy: " << bestAccuracy * 100.0f << "%" << endl;
     cout << "BestC: " << bestC << endl;
     cout << "BestGamma: " << bestGamma << endl;
@@ -197,25 +197,25 @@ void trainAndTest(const Mat& pre_X_train, const Mat& pre_y_train,
 
 void main() {
 
-    string carsPath = "C:/Users/user/source/repos/test/test/Traditional-Object-Detection-master/dataset/vehicles_smallset";     // ÁÖ¼Ò¿¡ ¸Â°Ô ¹Ù²ã¾ß ÇÔ 
-    string notCarsPath = "C:/Users/user/source/repos/test/test/Traditional-Object-Detection-master/dataset/non-vehicles_smallset";  // ÁÖ¼Ò¿¡ ¸Â°Ô ¹Ù²ã¾ß ÇÔ
+    string carsPath = "C:/Users/user/source/repos/test/test/Traditional-Object-Detection-master/dataset/vehicles_smallset";     // ì£¼ì†Œì— ë§ê²Œ ë°”ê¿”ì•¼ í•¨ 
+    string notCarsPath = "C:/Users/user/source/repos/test/test/Traditional-Object-Detection-master/dataset/non-vehicles_smallset";  // ì£¼ì†Œì— ë§ê²Œ ë°”ê¿”ì•¼ í•¨
 
     vector<Mat> images, augImages;
     vector<int> labels, augLabels;
 
-    // µ¥ÀÌÅÍ ·Îµå
-    loadImages(carsPath + "/cars1", images, labels, 1);     // Â÷·® ÀÌ¹ÌÁö: ·¹ÀÌºí 1
+    // ë°ì´í„° ë¡œë“œ
+    loadImages(carsPath + "/cars1", images, labels, 1);     // ì°¨ëŸ‰ ì´ë¯¸ì§€: ë ˆì´ë¸” 1
     loadImages(carsPath + "/cars2", images, labels, 1);
     loadImages(carsPath + "/cars3", images, labels, 1);
 
-    loadImages(notCarsPath + "/notcars1", images, labels, 0); // ºñÂ÷·® ÀÌ¹ÌÁö: ·¹ÀÌºí 0
+    loadImages(notCarsPath + "/notcars1", images, labels, 0); // ë¹„ì°¨ëŸ‰ ì´ë¯¸ì§€: ë ˆì´ë¸” 0
     loadImages(notCarsPath + "/notcars2", images, labels, 0);
     loadImages(notCarsPath + "/notcars3", images, labels, 0);
 
-    // µ¥ÀÌÅÍ Áõ°­
+    // ë°ì´í„° ì¦ê°•
     augmentation(images, labels, augImages, augLabels);
     
-    // µ¥ÀÌÅÍ ºĞÇÒ
+    // ë°ì´í„° ë¶„í• 
     vector<Mat> X_train, X_test;
     vector<int> y_train, y_test;
     splitData(images, labels, X_train, y_train, X_test, y_test);
@@ -226,13 +226,13 @@ void main() {
     // Preprocess
     Mat pre_X_train, pre_y_train, pre_X_test, pre_y_test;
     
-    // HOG Æ¯Â¡ ÃßÃâ ¹æ¹ı 1 (°ãÄ¡Áö ¾Ê°Ô) Á¤È®µµ 88.8172%
+    // HOG íŠ¹ì§• ì¶”ì¶œ ë°©ë²• 1 (ê²¹ì¹˜ì§€ ì•Šê²Œ) ì •í™•ë„ 88.8172%
     //simplePreprocessing(X_train, y_train, X_test, y_test, pre_X_train, pre_y_train, pre_X_test, pre_y_test);
 
-    // HOG Æ¯Â¡ ÃßÃâ ¹æ¹ı 2 (°ãÄ¡°Ô) Á¤È®µµ 89.8925 %
+    // HOG íŠ¹ì§• ì¶”ì¶œ ë°©ë²• 2 (ê²¹ì¹˜ê²Œ) ì •í™•ë„ 89.8925 %
     preprocessing(X_train, y_train, X_test, y_test, pre_X_train, pre_y_train, pre_X_test, pre_y_test);
     
-    // ÈÆ·Ã ¹× Å×½ºÆ®
+    // í›ˆë ¨ ë° í…ŒìŠ¤íŠ¸
     trainAndTest(pre_X_train, pre_y_train, pre_X_test, pre_y_test);
 
 }
