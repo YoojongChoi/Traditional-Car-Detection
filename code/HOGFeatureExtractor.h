@@ -1,11 +1,11 @@
 /*
-OpenCV ÇÔ¼ö¾øÀÌ HOG Æ¯Â¡ ÇÔ¼ö¸¦ ÃßÃâÇÏ±â À§ÇÑ ÄÚµåÀÔ´Ï´Ù.
-ÃßÃâµÈ Æ¯Â¡À» Visualize ÇÏ°í ½Í´Ù¸é ÁÖ¼®À» Áö¿ì¸é µË´Ï´Ù.
+OpenCV í•¨ìˆ˜ì—†ì´ HOG íŠ¹ì§• í•¨ìˆ˜ë¥¼ ì¶”ì¶œí•˜ê¸° ìœ„í•œ ì½”ë“œì…ë‹ˆë‹¤.
+ì¶”ì¶œëœ íŠ¹ì§•ì„ Visualize í•˜ê³  ì‹¶ë‹¤ë©´ ì£¼ì„ì„ ì§€ìš°ë©´ ë©ë‹ˆë‹¤.
 
-HOG Æ¯Â¡À» ÃßÃâÇÏ±â À§ÇÑ ¹æ¹ı 2°¡Áö
+HOG íŠ¹ì§•ì„ ì¶”ì¶œí•˜ê¸° ìœ„í•œ ë°©ë²• 2ê°€ì§€
 
-¹æ¹ı1) °ãÄ¡Áö ¾Ê°Ô: Class MySimpleHOGDescriptor (Á¤È®µµ 88.8172%)
-¹æ¹ı2) °ãÄ¡°Ô: Class MyHOGDescriptor (Á¤È®µµ 89.8925 %)
+ë°©ë²•1) ê²¹ì¹˜ì§€ ì•Šê²Œ: Class MySimpleHOGDescriptor (ì •í™•ë„ 88.8172%)
+ë°©ë²•2) ê²¹ì¹˜ê²Œ: Class MyHOGDescriptor (ì •í™•ë„ 89.8925 %)
 */
 
 #pragma once
@@ -16,7 +16,7 @@ HOG Æ¯Â¡À» ÃßÃâÇÏ±â À§ÇÑ ¹æ¹ı 2°¡Áö
 using namespace cv;
 using namespace std;
 
-// 1Â÷¿ø ¹è¿­ ÇÒ´ç ÇÔ¼ö
+// 1ì°¨ì› ë°°ì—´ í• ë‹¹ í•¨ìˆ˜
 unsigned char* MatToArray(Mat frame, int rows, int cols) {
     unsigned char* array = (unsigned char*)malloc(rows * cols * sizeof(unsigned char));
     for (int h = 0; h < rows; h++) {
@@ -39,40 +39,40 @@ Mat ArrayToMat(const T* src, int rows, int cols) {
     return mat;
 }
 
-// ÆĞµù
+// íŒ¨ë”©
 unsigned char* Padding(const unsigned char* src, int rows, int cols, int nFilterSize) {
     int nPadSize = (int)nFilterSize / 2;
     int paddedRows = rows + 2 * nPadSize;
     int paddedCols = cols + 2 * nPadSize;
     unsigned char* dst = (unsigned char*)malloc(paddedRows * paddedCols * sizeof(unsigned char));
 
-    // °¡¿îµ¥ ¿µ¿ª
+    // ê°€ìš´ë° ì˜ì—­
     for (int h = 0; h < rows; h++) {
         for (int w = 0; w < cols; w++) {
             dst[(h + nPadSize) * paddedCols + (w + nPadSize)] = src[h * cols + w];
         }
     }
-    // À§, ¾Æ·¡ ÆĞµù
+    // ìœ„, ì•„ë˜ íŒ¨ë”©
     for (int w = 0; w < cols; w++) {
         for (int p = 0; p < nPadSize; p++) {
-            dst[p * paddedCols + (w + nPadSize)] = src[w];  // À§ÂÊ
-            dst[(paddedRows - nPadSize + p) * paddedCols + (w + nPadSize)] = src[(rows - 1) * cols + w];  // ¾Æ·¡ÂÊ
+            dst[p * paddedCols + (w + nPadSize)] = src[w];  // ìœ„ìª½
+            dst[(paddedRows - nPadSize + p) * paddedCols + (w + nPadSize)] = src[(rows - 1) * cols + w];  // ì•„ë˜ìª½
         }
     }
-    // ¿ŞÂÊ, ¿À¸¥ÂÊ ÆĞµù
+    // ì™¼ìª½, ì˜¤ë¥¸ìª½ íŒ¨ë”©
     for (int h = 0; h < rows; h++) {
         for (int p = 0; p < nPadSize; p++) {
-            dst[(h + nPadSize) * paddedCols + p] = src[h * cols];  // ¿ŞÂÊ
-            dst[(h + nPadSize) * paddedCols + (paddedCols - nPadSize + p)] = src[h * cols + (cols - 1)];  // ¿À¸¥ÂÊ
+            dst[(h + nPadSize) * paddedCols + p] = src[h * cols];  // ì™¼ìª½
+            dst[(h + nPadSize) * paddedCols + (paddedCols - nPadSize + p)] = src[h * cols + (cols - 1)];  // ì˜¤ë¥¸ìª½
         }
     }
-    // ¸ğ¼­¸® ÆĞµù
+    // ëª¨ì„œë¦¬ íŒ¨ë”©
     for (int p = 0; p < nPadSize; p++) {
         for (int q = 0; q < nPadSize; q++) {
-            dst[p * paddedCols + q] = src[0];  // ¿ŞÂÊ À§
-            dst[p * paddedCols + (paddedCols - nPadSize + q)] = src[cols - 1];  // ¿À¸¥ÂÊ À§
-            dst[(paddedRows - nPadSize + p) * paddedCols + q] = src[(rows - 1) * cols];  // ¿ŞÂÊ ¾Æ·¡
-            dst[(paddedRows - nPadSize + p) * paddedCols + (paddedCols - nPadSize + q)] = src[(rows - 1) * cols + (cols - 1)];  // ¿À¸¥ÂÊ ¾Æ·¡
+            dst[p * paddedCols + q] = src[0];  // ì™¼ìª½ ìœ„
+            dst[p * paddedCols + (paddedCols - nPadSize + q)] = src[cols - 1];  // ì˜¤ë¥¸ìª½ ìœ„
+            dst[(paddedRows - nPadSize + p) * paddedCols + q] = src[(rows - 1) * cols];  // ì™¼ìª½ ì•„ë˜
+            dst[(paddedRows - nPadSize + p) * paddedCols + (paddedCols - nPadSize + q)] = src[(rows - 1) * cols + (cols - 1)];  // ì˜¤ë¥¸ìª½ ì•„ë˜
         }
     }
     return dst;
@@ -85,10 +85,10 @@ unsigned char* Convolution(const unsigned char* src, int rows, int cols, int nFi
     int paddedCols = cols + 2 * nPadSize;
     unsigned char* dst = (unsigned char*)malloc(rows * cols * sizeof(unsigned char));
 
-    // ÆĞµùµÈ ÀÔ·Â ¹è¿­ »ı¼º
+    // íŒ¨ë”©ëœ ì…ë ¥ ë°°ì—´ ìƒì„±
     unsigned char* paddedSrc = Padding(src, rows, cols, nFilterSize);
 
-    // Convolution ¿¬»ê
+    // Convolution ì—°ì‚°
     for (int h = nPadSize; h < paddedRows - nPadSize; h++) {
         for (int w = nPadSize; w < paddedCols - nPadSize; w++) {
             float sum = 0.0f;
@@ -107,9 +107,9 @@ unsigned char* Convolution(const unsigned char* src, int rows, int cols, int nFi
     return dst;
 }
 
-// Sobel Edge ¿¬»ê
+// Sobel Edge ì—°ì‚°
 pair<unsigned char*, unsigned char*> SobelEdge(const unsigned char* src, int rows, int cols) {
-    // Sobel ¸¶½ºÅ©
+    // Sobel ë§ˆìŠ¤í¬
     int sobel_H[3][3] = { {-1, 0, 1}, {-2, 0, 2}, {-1, 0, 1} };
     int sobel_V[3][3] = { { 1, 2, 1}, { 0, 0, 0}, {-1, -2, -1} };
 
@@ -120,11 +120,11 @@ pair<unsigned char*, unsigned char*> SobelEdge(const unsigned char* src, int row
     return make_pair(frame_h, frame_v);
 }
 
-// Magnitude & Orientation ÃßÃâ
+// Magnitude & Orientation ì¶”ì¶œ
 pair<float*, float*> MagnitudeOrientation(const unsigned char* frame_h, const unsigned char* frame_v, int rows, int cols) {
-    // ±â¿ï±â º¤ÅÍ¸¦ ÀÌ·ç´Â ¿ä¼Òµé
-    float* magnitude = (float*)malloc(rows * cols * sizeof(float));     // Å©±â
-    float* orientation = (float*)malloc(rows * cols * sizeof(float));   // ¹æÇâ
+    // ê¸°ìš¸ê¸° ë²¡í„°ë¥¼ ì´ë£¨ëŠ” ìš”ì†Œë“¤
+    float* magnitude = (float*)malloc(rows * cols * sizeof(float));     // í¬ê¸°
+    float* orientation = (float*)malloc(rows * cols * sizeof(float));   // ë°©í–¥
 
     for (int h = 0; h < rows; h++) {
         for (int w = 0; w < cols; w++) {
@@ -152,39 +152,39 @@ void visualizeMagnitude(float* magnitude, int rows, int cols) {
 void visualizeOrientation(float* orientation, int rows, int cols) {
     Mat direction_img = Mat::zeros(rows, cols, CV_8UC1);
 
-    for (int h = 0; h < rows; h += 10) {  // 10 ÇÈ¼¿¸¶´Ù Ç¥½Ã
+    for (int h = 0; h < rows; h += 10) {  // 10 í”½ì…€ë§ˆë‹¤ í‘œì‹œ
         for (int w = 0; w < cols; w += 10) {
-            float angle = orientation[h * cols + w] * CV_PI / 180.0;  // ¶óµğ¾È º¯È¯
+            float angle = orientation[h * cols + w] * CV_PI / 180.0;  // ë¼ë””ì•ˆ ë³€í™˜
             int mag = 5;
-            // ½ÃÀÛÁ¡
+            // ì‹œì‘ì 
             Point start(w, h);
-            // È­»ìÇ¥ ³¡Á¡: Å©±â¿Í ¹æÇâÀ» °í·ÁÇØ °è»ê
+            // í™”ì‚´í‘œ ëì : í¬ê¸°ì™€ ë°©í–¥ì„ ê³ ë ¤í•´ ê³„ì‚°
             Point end(w + static_cast<int>(mag * cos(angle)), h - static_cast<int>(mag * sin(angle)));
 
-            // ¹æÇâÀ» È­»ìÇ¥·Î Ç¥½Ã (»ö»óÀº Èò»öÀ¸·Î ¼³Á¤)
+            // ë°©í–¥ì„ í™”ì‚´í‘œë¡œ í‘œì‹œ (ìƒ‰ìƒì€ í°ìƒ‰ìœ¼ë¡œ ì„¤ì •)
             arrowedLine(direction_img, start, end, Scalar(255), 1);
         }
     }
     imshow("Orientation", direction_img);
 }
 
-// ÇØ´ç ÀÚ¸®¿¡ Magnitude¿Í OrientationÀ» °°ÀÌ Visualize 
+// í•´ë‹¹ ìë¦¬ì— Magnitudeì™€ Orientationì„ ê°™ì´ Visualize 
 void visualizeDirectionInGrayscale(float* magnitude, float* orientation, int rows, int cols) {
-    // Èæ¹é ÀÌ¹ÌÁö¸¦ À§ÇÑ ¹è°æ ÃÊ±âÈ­ (°ËÁ¤»ö)
+    // í‘ë°± ì´ë¯¸ì§€ë¥¼ ìœ„í•œ ë°°ê²½ ì´ˆê¸°í™” (ê²€ì •ìƒ‰)
     Mat direction_img = Mat::zeros(rows, cols, CV_8UC1);
 
-    for (int h = 0; h < rows; h += 10) {  // 10 ÇÈ¼¿¸¶´Ù Ç¥½Ã
+    for (int h = 0; h < rows; h += 10) {  // 10 í”½ì…€ë§ˆë‹¤ í‘œì‹œ
         for (int w = 0; w < cols; w += 10) {
             float mag = magnitude[h * cols + w];
-            float angle = orientation[h * cols + w] * CV_PI / 180.0;  // ¶óµğ¾È º¯È¯
+            float angle = orientation[h * cols + w] * CV_PI / 180.0;  // ë¼ë””ì•ˆ ë³€í™˜
 
-            // ½ÃÀÛÁ¡
+            // ì‹œì‘ì 
             Point start(w, h);
-            // È­»ìÇ¥ ³¡Á¡: Å©±â¿Í ¹æÇâÀ» °í·ÁÇØ °è»ê
+            // í™”ì‚´í‘œ ëì : í¬ê¸°ì™€ ë°©í–¥ì„ ê³ ë ¤í•´ ê³„ì‚°
             Point end(w + static_cast<int>(mag * cos(angle)),
                 h - static_cast<int>(mag * sin(angle)));
 
-            // ¹æÇâÀ» È­»ìÇ¥·Î Ç¥½Ã (»ö»óÀº Èò»öÀ¸·Î ¼³Á¤)
+            // ë°©í–¥ì„ í™”ì‚´í‘œë¡œ í‘œì‹œ (ìƒ‰ìƒì€ í°ìƒ‰ìœ¼ë¡œ ì„¤ì •)
             arrowedLine(direction_img, start, end, Scalar(255), 1);
         }
     }
@@ -207,7 +207,7 @@ void visualizeHistogram(const std::vector<float>& histogram, int binCount = 9) {
             Scalar(0),
             FILLED);
 
-        // °¢ ±¸¿ª bin Ç¥½Ã
+        // ê° êµ¬ì—­ bin í‘œì‹œ
         string binLabel = "bin: " + to_string(i + 1); 
         int text_x = i * bin_w + bin_w / 4; 
         int text_y = hist_h + 30; 
@@ -219,7 +219,7 @@ void visualizeHistogram(const std::vector<float>& histogram, int binCount = 9) {
     imshow("Cell Histogram", histImage);
 }
 
-// HOG Æ¯Â¡ ÃßÃâÇÏ±â À§ÇÑ ¹æ¹ı1: °ãÄ¡Áö ¾Ê°Ô
+// HOG íŠ¹ì§• ì¶”ì¶œí•˜ê¸° ìœ„í•œ ë°©ë²•1: ê²¹ì¹˜ì§€ ì•Šê²Œ
 class MySimpleHOGDescriptor {
 public:
     MySimpleHOGDescriptor(Size cellSize, int nbins)
@@ -298,7 +298,7 @@ private:
     int nbins;
 };
 vector<float> SimpleHogFeatureExtractor(Mat colorFrame) {
-    // ¹æ¹ı1 (°ãÄ¡Áö ¾Ê°Ô): Á¤È®µµ 88.8172%
+    // ë°©ë²•1 (ê²¹ì¹˜ì§€ ì•Šê²Œ): ì •í™•ë„ 88.8172%
     Size cellSize(8, 8);
     int nbins = 9;
 
@@ -311,7 +311,7 @@ vector<float> SimpleHogFeatureExtractor(Mat colorFrame) {
     return descriptors;
 }
 
-// HOG Æ¯Â¡ ÃßÃâÇÏ±â À§ÇÑ ¹æ¹ı2: °ãÄ¡°Ô
+// HOG íŠ¹ì§• ì¶”ì¶œí•˜ê¸° ìœ„í•œ ë°©ë²•2: ê²¹ì¹˜ê²Œ
 class MyHOGDescriptor {
 public:
     MyHOGDescriptor(Size winSize, Size blockSize, Size cellSize, Size winStride, Size blockStride,  int nbins)
@@ -345,19 +345,19 @@ public:
             for (int j = 0; j <= cols - winSize.width; j += winStride.width) {
                 vector<float> windowHist;
 
-                // °¢ À©µµ¿ì ³»¿¡¼­ blockStride¸¸Å­ ºí·Ï ½½¶óÀÌµù
+                // ê° ìœˆë„ìš° ë‚´ì—ì„œ blockStrideë§Œí¼ ë¸”ë¡ ìŠ¬ë¼ì´ë”©
                 // blcokSize > blockStride 
                 for (int bi = 0; bi <= winSize.height - blockSize.height; bi += blockStride.height) {
                     for (int bj = 0; bj <= winSize.width - blockSize.width; bj += blockStride.width) {
                         vector<float> blockHist;
 
-                        // °¢ ºí·Ï ³»¿¡¼­ cellSize¸¸Å­ ÀÌµ¿
+                        // ê° ë¸”ë¡ ë‚´ì—ì„œ cellSizeë§Œí¼ ì´ë™
                         for (int ci = 0; ci < blockSize.height; ci += cellSize.height) {
                             for (int cj = 0; cj < blockSize.width; cj += cellSize.width) {
                                 vector<float> cellHist(nbins, 0);
 
 
-                                // °¢ ¼¿¿¡ ´ëÇÑ È÷½ºÅä±×·¥ °è»ê
+                                // ê° ì…€ì— ëŒ€í•œ íˆìŠ¤í† ê·¸ë¨ ê³„ì‚°
                                 for (int y = i + bi + ci; y < i + bi + ci + cellSize.height && y < rows; ++y) {
                                     for (int x = j + bj + cj; x < j + bj + cj + cellSize.width && x < cols; ++x) {
                                         float mag = magOri.first[y * cols + x];
@@ -375,14 +375,14 @@ public:
                                 waitKey(0);
                                 */
 
-                                // ¼¿ È÷½ºÅä±×·¥ °è»ê ¿Ï·áÇÏ¿´À¸´Ï block È÷½ºÅä±×·¥¿¡ Ãß°¡
-                                // ºí·Ï È÷½ºÅä±×·¥Àº ¸ğµç ¼¿µéÀÇ È÷½ºÅä±×·¥ÀÌ ÀúÀåµÊ
+                                // ì…€ íˆìŠ¤í† ê·¸ë¨ ê³„ì‚° ì™„ë£Œí•˜ì˜€ìœ¼ë‹ˆ block íˆìŠ¤í† ê·¸ë¨ì— ì¶”ê°€
+                                // ë¸”ë¡ íˆìŠ¤í† ê·¸ë¨ì€ ëª¨ë“  ì…€ë“¤ì˜ íˆìŠ¤í† ê·¸ë¨ì´ ì €ì¥ë¨
                                 blockHist.insert(blockHist.end(), cellHist.begin(), cellHist.end());
                             }
                         }
 
                         // Normalize the block histogram
-                        // L2 ³ğ
+                        // L2 ë†ˆ
                         float blockSum = 0.0;
                         for (float val : blockHist) {
                             blockSum += val * val;
@@ -392,7 +392,7 @@ public:
                             val /= blockSum;
                         }
 
-                        // Á¤±ÔÈ­µÈ ÇÑ ºí·ÏÀ» windowHist¿¡ Ãß°¡
+                        // ì •ê·œí™”ëœ í•œ ë¸”ë¡ì„ windowHistì— ì¶”ê°€
                         windowHist.insert(windowHist.end(), blockHist.begin(), blockHist.end());
                     }
                 }
@@ -420,7 +420,7 @@ private:
 };
 
 vector<float> HogFeatureExtractor(Mat colorFrame){
-    // ¹æ¹ı2 (°ãÄ¡°Ô): Á¤È®µµ 89.8925 %
+    // ë°©ë²•2 (ê²¹ì¹˜ê²Œ): ì •í™•ë„ 89.8925 %
     Size winSize(32, 32);
     Size blockSize(16, 16);
     Size cellSize(16, 16);
