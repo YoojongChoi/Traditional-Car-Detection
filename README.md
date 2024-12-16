@@ -1,7 +1,7 @@
 # 1. Introduction
 
 
-This project focuses on the development of a traditional vehicle detection system utilizing Histogram of Oriented Gradients (HOG) for feature extraction and Support Vector Machines (SVM) for classification. The aim is to investigate the performance and practicality of traditional image processing methods in vehicle detection.
+This project focuses on the development of a traditional vehicle detection system utilizing Histogram of Oriented Gradients (HOG) for feature extraction not using OpenCV functions and Support Vector Machines (SVM) for classification. The aim is to investigate the performance and practicality of traditional image processing methods in vehicle detection.
 
 HOG is employed to extract structural and shape-related features of vehicles, and an SVM classifier is used to distinguish between "vehicle" and "non-vehicle" regions. While deep learning models often outperform traditional methods in terms of accuracy, this project highlights the potential of classical techniques, emphasizing their computational efficiency and interpretability.
 
@@ -45,4 +45,20 @@ When overlapping bounding boxes are detected by **Intersection over Union (IoU)*
 This ensures that each detected vehicle is represented by a single, most accurate bounding box.
 
 
-# 4. HOG Feature Extraction
+# 4. HOG Feature Extraction (OpenCV x)
+// mag& ori.png
+
+To extract HOG features, the magnitude and orientation of gradients are first calculated using the **Sobel edge** detector. The orientation is then divided into 9 bins within the 180-degree range, and a histogram is constructed by accumulating the magnitude values into the corresponding bins. Afterward, L2 normalization is applied to the histogram for better feature scaling.
+
+// cell_histogram.png
+
+There are two methods for implementing HOG extraction:
+
+1. **Non-overlapping cells**: the cells within a window do not overlap.
+2. **Overlapping cells**: the cells are allowed to overlap with each other.
+
+// approach.png
+
+Both methods share a common limitation: they do not fully cover all parts of the window due to differences in window size and cell size. However, since the windows themselves are set to overlap, this limitation becomes less significant.
+
+In practice, the second method (overlapping cells) achieved better performance. For this reason, I chose the second method for my implementation.
