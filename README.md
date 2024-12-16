@@ -38,8 +38,11 @@ However, this approach generates multiple overlapping bounding boxes for a singl
 
 To address this issue, a **non-maximum suppression** step is applied:
 
-
+![iou](./img/iou.png)
 
 When overlapping bounding boxes are detected by **Intersection over Union (IoU)**, the box with the **highest confidence score** from the SVM (the highest probability of being a vehicle) is retained, while the others are removed.
 
 This ensures that each detected vehicle is represented by a single, most accurate bounding box.
+
+
+# 4. HOG Feature Extraction
