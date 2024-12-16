@@ -22,8 +22,24 @@ However, as seen in the images, some non-vehicle regions are also falsely identi
 
 ![overall process](./img/overall_process.png)
 
-The process begins by resizing the input image into multiple scales to account for the varying sizes of vehicles in the scene. For example, cars closer to the camera appear larger, while those farther away appear smaller. To handle this, the image is resized incrementally (e.g., 1x, 0.8x, ..., 0.8⁴x).
+The process begins by **resizing the input image** into multiple scales to account for the varying sizes of vehicles in the scene. For example, cars closer to the camera appear larger, while those farther away appear smaller. To handle this, the image is resized incrementally (e.g., 1x, 0.8x, ..., 0.8⁴x).
+
+![resized 1x](./img/resized_img(1x).png)
+![resized 0.8^4x](./img/resized_img(0.8^4x).png)
+
+At each resized image scale:
+
+1. **HOG feature extraction** is performed to capture the structural patterns of potential vehicles.
+
+2. The extracted features are passed through a **pre-trained SVM classifier**, which determines whether a region contains a vehicle. If a region is classified as a vehicle, a bounding box is drawn around it.
+
+
+However, this approach generates multiple overlapping bounding boxes for a single vehicle across different scales. For instance, if the SVM works perfectly, a single car may have five bounding boxes (one for each resized image).
+
+To address this issue, a **non-maximum suppression** step is applied:
 
 
 
+When overlapping bounding boxes are detected by **Intersection over Union (IoU)**, the box with the **highest confidence score** from the SVM (the highest probability of being a vehicle) is retained, while the others are removed.
 
+This ensures that each detected vehicle is represented by a single, most accurate bounding box.
