@@ -46,19 +46,42 @@ This ensures that each detected vehicle is represented by a single, most accurat
 
 
 # 4. HOG Feature Extraction (OpenCV x)
-// mag& ori.png
+![mag_ori](./img/mag_ori.png)
 
 To extract HOG features, the magnitude and orientation of gradients are first calculated using the **Sobel edge** detector. The orientation is then divided into 9 bins within the 180-degree range, and a histogram is constructed by accumulating the magnitude values into the corresponding bins. Afterward, L2 normalization is applied to the histogram for better feature scaling.
 
-// cell_histogram.png
+![cell histogram](./img/cell_histogram.png)
 
 There are two methods for implementing HOG extraction:
 
 1. **Non-overlapping cells**: the cells within a window do not overlap.
 2. **Overlapping cells**: the cells are allowed to overlap with each other.
 
-// approach.png
+![methods](./img/approach.png)
 
 Both methods share a common limitation: they do not fully cover all parts of the window due to differences in window size and cell size. However, since the windows themselves are set to overlap, this limitation becomes less significant.
 
-In practice, the second method (overlapping cells) achieved better performance. For this reason, I chose the second method for my implementation.
+
+# 5. Training SVM
+
+
+The SVM was trained using the dataset available at this GitHub repository (https://github.com/A2Amir/Traditional-Object-Detection). The dataset contains a total of 2322 images, each with a resolution of 64x64 pixels. Among these, there are 1196 vehicle images and 1126 non-vehicle images.
+
+// data augmentation.png
+
+
+The data was split into 80% for training and 20% for testing. To enhance the training dataset, data augmentation was applied by horizontally flipping the images within the training set.
+
+During training, hyperparameters C (regularization parameter) and gamma (kernel coefficient) were fine-tuned to select the optimal SVM model for the task.
+
+
+// svm results.png
+
+Two HOG feature extraction methods were compared during the training process:
+
+1. Non-overlapping cells: This method achieved an accuracy of 88.8172%.
+2. Overlapping cells: This method achieved a slightly better accuracy of 89.8925%.
+
+The second method (overlapping cells) outperformed the first one, likely due to its ability to capture more robust features by including overlapping regions. As a result, the overlapping cells approach was selected for implementation.
+
+
