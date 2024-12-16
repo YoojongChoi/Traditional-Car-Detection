@@ -1,14 +1,14 @@
 /*
-ÀÚµ¿Â÷ µ¿¿µ»ó¿¡¼­ ÀÚµ¿Â÷µéÀ» Detection ÇÏ´Â ÄÚµåÀÔ´Ï´Ù.
-ÁÖÀÇ, (best_svm_model.xml)ÀÌ Á¸ÀçÇØ¾ß ½ÇÇàÀÌ µË´Ï´Ù.
+ìë™ì°¨ ë™ì˜ìƒì—ì„œ ìë™ì°¨ë“¤ì„ Detection í•˜ëŠ” ì½”ë“œì…ë‹ˆë‹¤.
+ì£¼ì˜, (best_svm_model.xml)ì´ ì¡´ì¬í•´ì•¼ ì‹¤í–‰ì´ ë©ë‹ˆë‹¤.
 */
 
 #include <iostream>
-#include <filesystem>
+#include <filesystem> 
 #include <opencv2/opencv.hpp>
 #include <opencv2/ml.hpp>
 #include <vector>
-#include "HOGFeatureExtractor.h" // ÀÛ¼ºÇÑ HOG ÃßÃâ ÄÚµå 
+#include "HOGFeatureExtractor.h" // ì‘ì„±í•œ HOG ì¶”ì¶œ ì½”ë“œ 
 
 using namespace std;
 using namespace cv;
@@ -18,14 +18,14 @@ namespace fs = std::filesystem;
 
 vector<Mat> generateImagePyramid(const Mat& image, float scaleFactor = 0.8, int minSize = 120, int maxLevels = 5) {
     /*
-    ÀÌ¹ÌÁö ÇÇ¶ó¹Ìµå »ı¼º ÇÔ¼ö
+    ì´ë¯¸ì§€ í”¼ë¼ë¯¸ë“œ ìƒì„± í•¨ìˆ˜
     
-    Ãâ·Â: 
-    [Àß¶óÁø ¿øº»: (1640, 830),                   --- ÀÛÀº Â÷µé Ã£±â¿ë
-    ¿øº» 0.8x: (1312, 664 ), 
-    ¿øº» 0.8^2x: (1049.6, 531.2),                --- Áß°£ Â÷µé Ã£±â¿ë
-    ¿øº» 0.8^3x: (839.68, 424.96)]               
-    ¿øº» 0.8^4x: (671.744, 339.968)]             --- Å« Â÷µé Ã£±â¿ë
+    ì¶œë ¥: 
+    [ì˜ë¼ì§„ ì›ë³¸: (1640, 830),                   --- ì‘ì€ ì°¨ë“¤ ì°¾ê¸°ìš©
+    ì›ë³¸ 0.8x: (1312, 664 ), 
+    ì›ë³¸ 0.8^2x: (1049.6, 531.2),                --- ì¤‘ê°„ ì°¨ë“¤ ì°¾ê¸°ìš©
+    ì›ë³¸ 0.8^3x: (839.68, 424.96)]               
+    ì›ë³¸ 0.8^4x: (671.744, 339.968)]             --- í° ì°¨ë“¤ ì°¾ê¸°ìš©
     */
 
     vector<Mat> pyramid;
@@ -41,8 +41,8 @@ vector<Mat> generateImagePyramid(const Mat& image, float scaleFactor = 0.8, int 
 
 vector<Rect> slidingWindow(const Mat& image, int minWinWidth = 136, int minWinHeight = 110) {
     /*
-    ½½¶óÀÌµù À©µµ¿ì ÇÔ¼ö    
-    ÀÔ·ÂµÈ ¿µ»ó À§¿¡¼­ ½½¶óÀÌµù À©µµ¿ìµéÀÇ º¤ÅÍ¸¦ »ı¼ºÇÕ´Ï´Ù.
+    ìŠ¬ë¼ì´ë”© ìœˆë„ìš° í•¨ìˆ˜    
+    ì…ë ¥ëœ ì˜ìƒ ìœ„ì—ì„œ ìŠ¬ë¼ì´ë”© ìœˆë„ìš°ë“¤ì˜ ë²¡í„°ë¥¼ ìƒì„±í•©ë‹ˆë‹¤.
     */
     vector<Rect> windows;
     int y_stride = minWinHeight / 4;
@@ -58,30 +58,30 @@ vector<Rect> slidingWindow(const Mat& image, int minWinWidth = 136, int minWinHe
 
 vector<Rect> detectObjects(Ptr<SVM> svm, const vector<Mat>& pyramid, vector<float>&scores, const Rect& roiRect) {
     /*
-    °´Ã¼ Å½Áö ÇÔ¼ö
-    °¢ ÇÇ¶ó¹Ìµå ¿µ»óÀÇ Ã¹ ¹øÂ° À©µµ¿ì ºÎºĞÀÇ È®·üÀ» ¾Ë°í ½ÍÀ¸¸é, 
-    ¹Ø¿¡ ÀÖ´Â ÁÖ¼®À» ¾ø¾Ö¸é µË´Ï´Ù.
+    ê°ì²´ íƒì§€ í•¨ìˆ˜
+    ê° í”¼ë¼ë¯¸ë“œ ì˜ìƒì˜ ì²« ë²ˆì§¸ ìœˆë„ìš° ë¶€ë¶„ì˜ í™•ë¥ ì„ ì•Œê³  ì‹¶ìœ¼ë©´, 
+    ë°‘ì— ìˆëŠ” ì£¼ì„ì„ ì—†ì• ë©´ ë©ë‹ˆë‹¤.
     */
     vector<Rect> detections;
     for (size_t i = 0; i < pyramid.size(); i++) {
         vector<Rect> windows = slidingWindow(pyramid[i]);
-        int first_window = 0;   // °¢ ÇÇ¶ó¹ÌµåÀÇ Ã¹¹ø Â° À©µµ¿ì È®ÀÎ¿ë
+        int first_window = 0;   // ê° í”¼ë¼ë¯¸ë“œì˜ ì²«ë²ˆ ì§¸ ìœˆë„ìš° í™•ì¸ìš©
         for (const Rect& window : windows) {
-            Mat roi = pyramid[i](window); // ½½¶óÀÌµù À©µµ¿ì ¿µ¿ª ÃßÃâ (120 x 150)
+            Mat roi = pyramid[i](window); // ìŠ¬ë¼ì´ë”© ìœˆë„ìš° ì˜ì—­ ì¶”ì¶œ (120 x 150)
             /*
-            // ÇöÀç À©µµ¿ì 
+            // í˜„ì¬ ìœˆë„ìš° 
             imshow("current_window", roi);
             */
             
-            resize(roi, roi, Size(64, 64)); // ÇĞ½À µ¥ÀÌÅÍ Å©±âÀÎ 64x64·Î ¸®»çÀÌÁî
-            vector<float> descriptors = HogFeatureExtractor(roi); // HOG Æ¯Â¡ ÃßÃâ
+            resize(roi, roi, Size(64, 64)); // í•™ìŠµ ë°ì´í„° í¬ê¸°ì¸ 64x64ë¡œ ë¦¬ì‚¬ì´ì¦ˆ
+            vector<float> descriptors = HogFeatureExtractor(roi); // HOG íŠ¹ì§• ì¶”ì¶œ
             Mat featureVector = Mat(descriptors).reshape(1, 1);
             float rawScore = svm->predict(featureVector, noArray(), StatModel::RAW_OUTPUT);
-            float probability = 1.0 / (1.0 + exp(-rawScore)); // Sigmoid ÇÔ¼ö·Î È®·ü °è»ê
-            probability = 1 - probability;  // °Å²Ù·Î µÇ¾îÀÖÀ½ 
+            float probability = 1.0 / (1.0 + exp(-rawScore)); // Sigmoid í•¨ìˆ˜ë¡œ í™•ë¥  ê³„ì‚°
+            probability = 1 - probability;  // ê±°ê¾¸ë¡œ ë˜ì–´ìˆìŒ 
             
             /*
-            // °¢ ÇÇ¶ó¹ÌµåÀÇ Ã¹ ¹øÂ° À©µµ¿ìÀÇ È®·üÀ» Ãâ·Â
+            // ê° í”¼ë¼ë¯¸ë“œì˜ ì²« ë²ˆì§¸ ìœˆë„ìš°ì˜ í™•ë¥ ì„ ì¶œë ¥
             if (first_window == 0) {
                 cout << "probability: " << probability << endl;
                 waitKey(0);
@@ -89,21 +89,21 @@ vector<Rect> detectObjects(Ptr<SVM> svm, const vector<Mat>& pyramid, vector<floa
             first_window += 1;
             */
             
-            if (probability > 0.5) { // ÀÚµ¿Â÷¶ó°í ÆÇ´Ü
-                // ¿øº» ½ºÄÉÀÏ·Î ÁÂÇ¥ º¯È¯
-                float scale = pow(0.8, static_cast<int>(i)); // ½ºÄÉÀÏ ºñÀ²
-                Rect originalWindow = Rect(                  // ÀÚµ¿Â÷ ±¸¿ª
+            if (probability > 0.5) { // ìë™ì°¨ë¼ê³  íŒë‹¨
+                // ì›ë³¸ ìŠ¤ì¼€ì¼ë¡œ ì¢Œí‘œ ë³€í™˜
+                float scale = pow(0.8, static_cast<int>(i)); // ìŠ¤ì¼€ì¼ ë¹„ìœ¨
+                Rect originalWindow = Rect(                  // ìë™ì°¨ êµ¬ì—­
                     static_cast<int>(window.x / scale),
                     static_cast<int>(window.y / scale),
                     static_cast<int>(window.width / scale),
                     static_cast<int>(window.height / scale)
                 );
                 
-                // cropÇÑ ºÎºĞ °í·Á
+                // cropí•œ ë¶€ë¶„ ê³ ë ¤
                 originalWindow.x += roiRect.x;
                 originalWindow.y += roiRect.y;
                 detections.push_back(originalWindow);
-                scores.push_back(probability); // È®·ü °ªÀ» score¿¡ Ãß°¡
+                scores.push_back(probability); // í™•ë¥  ê°’ì„ scoreì— ì¶”ê°€
             }
         }
     }
@@ -112,15 +112,15 @@ vector<Rect> detectObjects(Ptr<SVM> svm, const vector<Mat>& pyramid, vector<floa
 
 vector<Rect> applyNMS(const vector<Rect>& detections, const vector<float>& scores, float nmsThreshold) {
     /*
-    ºñÃÖ´ë ¾ïÁ¦(NMS) Àû¿ë ÇÔ¼ö
-    Áßº¹µÈ °´Ã¼ Å½Áö¸¦ ÁÙÀÌ±â À§ÇÔ
+    ë¹„ìµœëŒ€ ì–µì œ(NMS) ì ìš© í•¨ìˆ˜
+    ì¤‘ë³µëœ ê°ì²´ íƒì§€ë¥¼ ì¤„ì´ê¸° ìœ„í•¨
     */
     vector<int> indices;
     vector<Rect> finalDetections;
-    // OpenCV dnn::NMSBoxes ÇÔ¼ö »ç¿ëÇÏ¿© NMS Àû¿ë
+    // OpenCV dnn::NMSBoxes í•¨ìˆ˜ ì‚¬ìš©í•˜ì—¬ NMS ì ìš©
     dnn::NMSBoxes(detections, scores, 0, nmsThreshold, indices);   
 
-    // ÃÖÁ¾ ¼±ÅÃµÈ ¹Ú½ºµéÀ» °á°ú º¤ÅÍ¿¡ Ãß°¡
+    // ìµœì¢… ì„ íƒëœ ë°•ìŠ¤ë“¤ì„ ê²°ê³¼ ë²¡í„°ì— ì¶”ê°€
     for (int idx : indices) {
         finalDetections.push_back(detections[idx]);
     }
@@ -129,7 +129,7 @@ vector<Rect> applyNMS(const vector<Rect>& detections, const vector<float>& score
 
 
 int main() {
-    // ÀÌ¹ÌÁö ·Îµå
+    // ì´ë¯¸ì§€ ë¡œë“œ
 
     //Video I/O --------------------------------
     VideoCapture capture("car_video2.mp4");
@@ -141,7 +141,7 @@ int main() {
         if (image.empty())
             break;
         
-        // ÇĞ½ÀµÈ SVM ¸ğµ¨ ·Îµå
+        // í•™ìŠµëœ SVM ëª¨ë¸ ë¡œë“œ
         Ptr<SVM> svm = SVM::load("best_svm_model.xml");
         if (svm.empty()) {
             cerr << "Error loading SVM model!" << endl;
@@ -149,27 +149,27 @@ int main() {
         }
         
         //Crop Image
-        // ¿øº» Å©±â(1920, 1080) - > Å©±â (1640, 830)
-        Rect roiRect(280, 250, 1640, 830);  // ~³¡±îÁö 
+        // ì›ë³¸ í¬ê¸°(1920, 1080) - > í¬ê¸° (1640, 830)
+        Rect roiRect(280, 250, 1640, 830);  // ~ëê¹Œì§€ 
         Mat croppedImage = image(roiRect);
 
-        // ÀÌ¹ÌÁö ÇÇ¶ó¹Ìµå »ı¼º
+        // ì´ë¯¸ì§€ í”¼ë¼ë¯¸ë“œ ìƒì„±
         vector<Mat> pyramid = generateImagePyramid(croppedImage);
 
-        // °´Ã¼ Å½Áö
+        // ê°ì²´ íƒì§€
         vector<float> scores;
         vector<Rect> detections = detectObjects(svm, pyramid, scores, roiRect);
         
-        // NMS Àû¿ë
+        // NMS ì ìš©
         vector<Rect> finalDetections = applyNMS(detections, scores, 0.06); 
 
-        // °á°ú ½Ã°¢È­
+        // ê²°ê³¼ ì‹œê°í™”
         for (const Rect& box : finalDetections) { 
-            rectangle(image, box, Scalar(0, 255, 0), 2); // Å½Áö °á°ú ±×¸®±â
+            rectangle(image, box, Scalar(0, 255, 0), 2); // íƒì§€ ê²°ê³¼ ê·¸ë¦¬ê¸°
         }
         imshow("video", image);
 
-        //waitKey(0);   // ÇÑ ÇÁ·¹ÀÓ¾¿ º¸°í½Í´Ù¸é
+        //waitKey(0);   // í•œ í”„ë ˆì„ì”© ë³´ê³ ì‹¶ë‹¤ë©´
         if (waitKey(10) > 0)
             break;
 
