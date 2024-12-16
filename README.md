@@ -67,21 +67,45 @@ Both methods share a common limitation: they do not fully cover all parts of the
 
 The SVM was trained using the dataset available at this GitHub repository (https://github.com/A2Amir/Traditional-Object-Detection). The dataset contains a total of 2322 images, each with a resolution of 64x64 pixels. Among these, there are 1196 vehicle images and 1126 non-vehicle images.
 
-// data augmentation.png
-
+![data augmentation](./img/augmentation.png)
 
 The data was split into 80% for training and 20% for testing. To enhance the training dataset, data augmentation was applied by horizontally flipping the images within the training set.
 
 During training, hyperparameters C (regularization parameter) and gamma (kernel coefficient) were fine-tuned to select the optimal SVM model for the task.
 
-
-// svm results.png
+![svm results](./img/svm_results.png)
 
 Two HOG feature extraction methods were compared during the training process:
 
-1. Non-overlapping cells: This method achieved an accuracy of 88.8172%.
-2. Overlapping cells: This method achieved a slightly better accuracy of 89.8925%.
+1. **Non-overlapping cells**: This method achieved an accuracy of 88.8172%.
+2. **Overlapping cells**: This method achieved a slightly better accuracy of 89.8925%.
 
 The second method (overlapping cells) outperformed the first one, likely due to its ability to capture more robust features by including overlapping regions. As a result, the overlapping cells approach was selected for implementation.
 
+After completing the implementation, testing was performed using a video from Pexels (https://www.pexels.com/video/cars-on-highway-854671/). The video showcases cars on a highway, making it suitable for evaluating the detection system in a real-world scenario.
 
+# 6. Summary and Limitations
+
+
+In this project, vehicles were detected by extracting HOG features using a traditional approach without relying on OpenCV functions. While the performance is not exceptionally high, the results demonstrate that the system can detect vehicles reasonably well.
+
+However, several **limitations** were identified:
+
+1. **Sensitivity to lighting and background**: The system struggles in varying lighting conditions and with complex backgrounds.
+
+2. **Overlapping vehicles**: The method for handling overlapping vehicles shows limitations. Although IoU was used to determine overlap, the system often fails to distinguish between overlapping vehicles and multiple bounding boxes on the same vehicle.
+
+3. **Dataset limitation**: The dataset used for training contained only images of vehicle rear views, whereas the test video primarily features front views of vehicles. This discrepancy negatively impacts detection accuracy.
+
+4. **Computational inefficiency**: Since HOG feature extraction was implemented manually without OpenCV functions, the processing speed is significantly slow.
+
+
+To address these limitations and **improve accuracy**, the following future directions are proposed:
+
+1. **Adjusting the kernel size** to ensure better coverage of each window.
+
+2. **Refining the overlap criterion** (IoU) to more strictly handle redundant bounding boxes.
+
+3. Optimizing the implementation to **increase processing speed** while maintaining accuracy.
+
+Through this project, the challenges and potential of traditional methods for vehicle detection were explored, laying a foundation for future improvements in both accuracy and efficiency.
