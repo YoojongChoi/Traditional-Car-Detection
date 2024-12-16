@@ -9,3 +9,5 @@ By carefully tuning parameters and evaluating performance on diverse datasets, t
 
 
 # 2. Results
+![detected images](./img/HOG_SVM_1.png)
+![detected images](./img/HOG_SVM_2.png)
